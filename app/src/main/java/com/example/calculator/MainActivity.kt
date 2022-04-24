@@ -2,9 +2,12 @@ package com.example.calculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import net.objecthunter.exp4j.ExpressionBuilder
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     private var operation: TextView? = null
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var ac_btn: TextView? = null
     private var result_text: TextView? = null
     private var back_btn: TextView? = null
+    private var equal_btn: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         ac_btn = findViewById(R.id.ac_btn)
         result_text = findViewById(R.id.result_text)
         back_btn = findViewById(R.id.back_btn)
+        equal_btn = findViewById(R.id.equal_btn)
         btn_0?.setOnClickListener { setTextField("0") }
         btn_1?.setOnClickListener { setTextField("1") }
         btn_2?.setOnClickListener { setTextField("2") }
@@ -77,12 +82,30 @@ class MainActivity : AppCompatActivity() {
             if (str.isNotEmpty()) {
                 operation?.text = str.substring(0, str.length - 1)
             }
+            result_text?.text = "";
         }
 
+        equal_btn?.setOnClickListener {
+            try {
+                val ex = ExpressionBuilder(operation?.text.toString()).build()
+                val result = ex.evaluate()
+                val longRes = result.toLong()
+                if (result == longRes.toDouble()) {
+                    result_text?.text = longRes.toString()
+                } else {
+                    result_text?.text = result.toString()
+                }
+            } catch (e: Exception) {
+                Log.d("Error", "message: ${e.message}")
+            }
+        }
     }
 
     fun setTextField(str: String) {
         operation = findViewById(R.id.math_operation)
+        if (result_text?.text != "") {
+            operation?.text = result_text?.text
+        }
         operation?.append(str)
     }
 }
